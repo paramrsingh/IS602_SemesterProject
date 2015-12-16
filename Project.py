@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 casedf = pd.read_csv('~/Downloads/SPCS10RSA.csv')
 zillowdf = pd.read_csv('~/Downloads/Zip_Zhvi_AllHomes.csv')
@@ -18,7 +19,7 @@ print casedf.head()
 print casedf.info()
 
 # Don't care about the Case Shiller data from before 2010
-casedf = casedf.ix[75:]
+casedf = casedf.ix[92:]
 print casedf
 
 # Don't care about the Zillow data for zip 11101 before 2010 (doesn't exist)
@@ -37,9 +38,16 @@ for i in years:
         excludelist.append(str(i) + "-" + str(j))
 # manually dropping the last two months in 2015 as they are not present in the data
 del excludelist[-2:]
-print excludelist
-
 licdata = licdata.drop(excludelist, axis=0)
+licdata = licdata.ix[:-1]
 print licdata
 
 # Align both datasets so that they can be plotted to determine if there is a positive correlation
+Y = np.array(licdata[[2998]])
+Y = Y/1000
+print Y.shape
+X = np.array(casedf[['VALUE']])
+print X.shape
+# change shape for plotting and lin reg
+plt.scatter(X, Y)
+plt.show()

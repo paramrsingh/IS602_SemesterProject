@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 
 casedf = pd.read_csv('~/Downloads/SPCS10RSA.csv')
 zillowdf = pd.read_csv('~/Downloads/Zip_Zhvi_AllHomes.csv')
@@ -45,9 +46,34 @@ print licdata
 # Align both datasets so that they can be plotted to determine if there is a positive correlation
 Y = np.array(licdata[[2998]])
 Y = Y/1000
+Y = Y.squeeze()
 print Y.shape
 X = np.array(casedf[['VALUE']])
+X = X.squeeze()
 print X.shape
-# change shape for plotting and lin reg
+# lin reg
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(X, Y)
+print r_value
+#plt.scatter(X, Y)
+#plt.plot(X, slope*X + intercept)
+#plt.show()
+
+casedf = pd.read_csv('~/Downloads/SPCS10RSA.csv')
+casedf = casedf.ix[52:]
+casedf['DATE'] = pd.to_datetime(casedf['DATE'])
+X = np.array(casedf[['DATE']])
+Y = np.array(casedf[['VALUE']])
+X = X.squeeze()
+Y = Y.squeeze()
+maxYvalue = max(Y)
+maxresult = casedf.loc[casedf['VALUE'] == maxYvalue]
+current = Y[-1]
+dx = maxresult[['DATE']].squeeze()
+print maxresult[['VALUE']]
 plt.scatter(X, Y)
+plt.scatter(dx, maxYvalue, color='red', marker='>', s=100)
+plt.annotate('max value: %s' % maxYvalue, xy=(dx, maxYvalue))
+plt.scatter('2015-07-01 00:00:00', current, color='green', marker='*', s=100)
+plt.annotate('current value: %s' % current, xy=('2013-07-01 00:00:00', current))
 plt.show()

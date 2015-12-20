@@ -11,7 +11,6 @@ print casedf.info()
 print zillowdf.info()
 
 print casedf.dtypes
-# print zillowdf.dtypes
 
 print casedf.head()
 print zillowdf.head()

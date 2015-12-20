@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas import Series
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
@@ -71,9 +72,47 @@ maxresult = casedf.loc[casedf['VALUE'] == maxYvalue]
 current = Y[-1]
 dx = maxresult[['DATE']].squeeze()
 print maxresult[['VALUE']]
-plt.scatter(X, Y)
-plt.scatter(dx, maxYvalue, color='red', marker='>', s=100)
-plt.annotate('max value: %s' % maxYvalue, xy=(dx, maxYvalue))
-plt.scatter('2015-07-01 00:00:00', current, color='green', marker='*', s=100)
-plt.annotate('current value: %s' % current, xy=('2013-07-01 00:00:00', current))
+#plt.scatter(X, Y)
+#plt.scatter(dx, maxYvalue, color='red', marker='>', s=100)
+#plt.annotate('max value: %s' % maxYvalue, xy=(dx, maxYvalue))
+#plt.scatter('2015-07-01 00:00:00', current, color='green', marker='*', s=100)
+#plt.annotate('current value: %s' % current, xy=('2013-07-01 00:00:00', current))
+#plt.show()
+
+nycopendata = pd.read_csv('~/Downloads/DOB_Permit_Issuance-3a.csv')
+print nycopendata.info()
+
+#drop columns not needed
+colcounter = range(0, 19)
+nycopendata = nycopendata.drop(nycopendata.columns[[colcounter]], axis=1)
+colcounter = range(6, 35)
+nycopendata = nycopendata.drop(nycopendata.columns[[colcounter]], axis=1)
+colcounter = range(1, 5)
+nycopendata = nycopendata.drop(nycopendata.columns[[colcounter]], axis=1)
+print nycopendata.info()
+
+#change Filing Date to datetime
+nycopendata['Filing Date'] = pd.to_datetime(nycopendata['Filing Date'])
+
+#sort by permit type
+nycopendata = nycopendata[(nycopendata['Permit Type'] != 'PL') | (nycopendata['Permit Type'] == 'SG')]
+print nycopendata.info()
+print nycopendata.head()
+
+#count per quarter per year
+nycopendata['Filing Date'] = nycopendata['Filing Date'].apply(lambda t: t.to_period(freq='q'))
+
+#group filing date by quarter and count the number of filed permits
+count_per_quarter = nycopendata[['Permit Type', 'Filing Date']].groupby(['Filing Date']).agg(['count'])
+count_per_quarter.reset_index(inplace=True)
+count_per_quarter.columns = count_per_quarter.columns.get_level_values(0)
+
+X = np.array(count_per_quarter[['Filing Date']]).squeeze()
+print X
+Y = np.array(count_per_quarter[['Permit Type']]).squeeze()
+print Y
+
+ao = Series(Y, index=X)
+print ao
+ao.plot(kind='bar')
 plt.show()
